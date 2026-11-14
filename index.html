@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ECEBE5">
+<title>Bonsai-almanak</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bonsai">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@700;900&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Layout: phone app. One scrolling column, fixed tab bar at the thumb, sheets from the bottom.
+     Indigo ink on grey-white paper; vermilion means "needs doing" and nothing else. */
+  --paper:#ECEBE5; --tile:#F7F6F1; --sunk:#DFDED6; --ink:#1B1F2A; --ink-2:#5F6575;
+  --indigo:#2B3F6B; --rule:#CFCFC9; --seal:#CF4326; --leaf:#5F7F4E; --pot:#B9C9AE; --bark:#6A5446;
+  --display:"Zen Old Mincho","Hiragino Mincho ProN","Yu Mincho",Georgia,serif;
+  --body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#12151B; --tile:#1C2029; --sunk:#0C0E13; --ink:#E8E5DC; --ink-2:#9A9FAB;
+    --indigo:#A3B6E2; --rule:#2F3441; --seal:#EE6B4D; --leaf:#8FB07A; --pot:#5E7163; --bark:#9A8170; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#12151B; --tile:#1C2029; --sunk:#0C0E13; --ink:#E8E5DC; --ink-2:#9A9FAB;
+  --indigo:#A3B6E2; --rule:#2F3441; --seal:#EE6B4D; --leaf:#8FB07A; --pot:#5E7163; --bark:#9A8170; color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;overscroll-behavior-y:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-action:manipulation}
+button:focus-visible,input:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}
+[hidden]{display:none!important}
+.jp{font-family:var(--display)}
+
+.shell{max-width:480px;height:100%;margin:0 auto;display:flex;flex-direction:column}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top) + 14px) 18px 28px;display:flex;flex-direction:column;gap:22px}
+
+/* tab bar */
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule);background:var(--paper);padding:6px 10px calc(env(safe-area-inset-bottom) + 6px)}
+.tab{display:flex;flex-direction:column;align-items:center;gap:1px;min-height:54px;justify-content:center;border-radius:14px;color:var(--ink-2);font-size:11.5px;font-weight:500;letter-spacing:.02em}
+.tab .jp{font-size:22px;font-weight:700;line-height:1.1}
+.tab[aria-current="page"]{color:var(--ink);background:var(--sunk)}
+.tab .dot{position:absolute;margin:-2px 0 0 30px;width:8px;height:8px;border-radius:50%;background:var(--seal)}
+
+/* today header */
+.head{display:grid;grid-template-columns:1fr 104px;align-items:end;gap:6px}
+.meta{font-size:13px;color:var(--ink-2);display:flex;gap:8px;flex-wrap:wrap;align-items:baseline}
+.meta .jp{color:var(--indigo);font-weight:700;font-size:15px}
+.name{font-family:var(--display);font-weight:900;font-size:clamp(38px,12.5vw,56px);line-height:1.02;letter-spacing:-.01em;margin-top:6px;overflow-wrap:anywhere;text-wrap:balance}
+.mood{font-size:16.5px;margin-top:8px;max-width:17em}
+.tree{width:104px;height:112px;display:block}
+.tree .crown{transform-origin:60px 70px;animation:sway 7s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(-1.6deg)}50%{transform:rotate(1.6deg)}}
+
+.wen{background:var(--tile);border-radius:16px;padding:13px 15px;font-size:14px;display:flex;flex-direction:column;gap:8px}
+.wen b{font-weight:700}
+.bar{height:5px;border-radius:3px;background:var(--sunk);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--seal);border-radius:3px}
+
+h2{font-size:13px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-2);display:flex;justify-content:space-between;align-items:center}
+.stack{display:flex;flex-direction:column;gap:10px}
+
+/* due cards */
+.card{position:relative;background:var(--tile);border-radius:20px;padding:16px;display:grid;grid-template-columns:54px 1fr;gap:4px 14px;overflow:hidden}
+.mark{width:54px;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:900;font-size:30px;background:var(--seal);color:#FFF6EE;transform:rotate(-3deg)}
+.card h3{font-size:18px;font-weight:700;line-height:1.2}
+.card .when{font-size:13px;color:var(--seal);font-weight:700;margin-top:1px}
+.card p{grid-column:1/-1;font-size:15px;color:var(--ink-2);margin-top:8px}
+.acts{grid-column:1/-1;display:grid;grid-template-columns:1.25fr 1fr;gap:8px;margin-top:12px}
+.btn{min-height:50px;border-radius:14px;font-weight:700;font-size:15.5px;padding:0 14px;transition:transform .12s}
+.btn:active{transform:scale(.97)}
+.btn.p{background:var(--ink);color:var(--paper)}
+.btn.q{background:var(--sunk);color:var(--ink)}
+.stamp{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--tile) 82%,transparent);pointer-events:none}
+.stamp span{width:92px;height:92px;border:4px solid var(--seal);color:var(--seal);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:900;font-size:50px;animation:stamp .34s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes stamp{from{transform:scale(2.2) rotate(8deg);opacity:0}to{transform:scale(1) rotate(-9deg);opacity:1}}
+.rest{background:var(--tile);border-radius:20px;padding:22px 18px;font-size:16px}
+.rest b{font-family:var(--display);font-size:20px;display:block;margin-bottom:4px}
+
+/* upcoming strip */
+.strip{display:flex;gap:10px;overflow-x:auto;margin:0 -18px;padding:2px 18px 6px;scroll-snap-type:x proximity;scrollbar-width:none}
+.strip::-webkit-scrollbar{display:none}
+.chip{flex:none;width:118px;background:var(--tile);border-radius:18px;padding:12px 12px 13px;text-align:left;scroll-snap-align:start;display:flex;flex-direction:column;gap:6px}
+.chip .jp{font-size:26px;font-weight:900;color:var(--indigo);line-height:1}
+.chip strong{font-size:14.5px;line-height:1.2}
+.chip span{font-size:12.5px;color:var(--ink-2)}
+.month{font-size:15.5px;border-left:3px solid var(--indigo);padding:2px 0 2px 13px;max-width:30em}
+.month b{font-family:var(--display)}
+
+/* calendar */
+.calnav{display:flex;align-items:center;justify-content:space-between}
+.calnav h1{font-family:var(--display);font-weight:900;font-size:30px;line-height:1.1}
+.calnav div{display:flex;gap:8px}
+.calnav button{width:46px;height:46px;border-radius:14px;background:var(--tile);font-size:20px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.dw{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);text-align:center;padding-bottom:2px}
+.cell{aspect-ratio:1/1.18;border-radius:11px;background:var(--tile);padding:5px 2px 3px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;min-width:0}
+.cell .d{font-size:14.5px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.cell .k{font-family:var(--display);font-size:10.5px;line-height:1.1;color:var(--indigo);letter-spacing:0;white-space:nowrap;overflow:hidden;max-width:100%}
+.cell.past{background:none}
+.cell.past .d{color:var(--ink-2);font-weight:500}
+.cell.past .k{color:var(--leaf)}
+.cell.today{background:var(--seal)}
+.cell.today .d,.cell.today .k{color:#FFF6EE}
+.cell.sel{box-shadow:0 0 0 2px var(--ink)}
+.cell.out{background:none}
+.pick{background:var(--tile);border-radius:16px;padding:13px 15px;font-size:15px;min-height:50px}
+.pick b{font-family:var(--display)}
+.key{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;font-size:13.5px;color:var(--ink-2)}
+.key i{font-style:normal;font-family:var(--display);color:var(--indigo);font-weight:700;margin-right:6px;font-size:16px}
+
+/* log */
+.plate{background:var(--tile);border-radius:20px;padding:18px}
+.plate .n{font-family:var(--display);font-weight:900;font-size:30px;line-height:1.1;overflow-wrap:anywhere}
+.plate p{font-size:14.5px;color:var(--ink-2);margin-top:4px}
+.log{list-style:none}
+.log li{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--rule);font-size:15px}
+.log .jp{font-weight:700;font-size:18px;color:var(--indigo)}
+.log time{color:var(--ink-2);font-size:13px;font-variant-numeric:tabular-nums}
+.log em{font-style:normal;color:var(--ink-2)}
+.fine{font-size:12.5px;color:var(--ink-2)}
+
+/* sheet + toast */
+.veil{position:fixed;inset:0;background:rgba(10,12,18,.42);display:flex;align-items:flex-end;justify-content:center;z-index:20;animation:fade .16s both}
+.sheet{width:100%;max-width:480px;background:var(--paper);border-radius:26px 26px 0 0;padding:10px 18px calc(env(safe-area-inset-bottom) + 18px);animation:up .24s cubic-bezier(.2,.9,.3,1) both}
+.grab{width:40px;height:4px;border-radius:2px;background:var(--rule);margin:0 auto 14px}
+.sheet .top{display:grid;grid-template-columns:54px 1fr;gap:14px;align-items:center}
+.sheet .mark{background:var(--tile);color:var(--indigo);transform:none}
+.sheet h3{font-size:20px;font-weight:700}
+.sheet .when{font-size:13.5px;color:var(--ink-2)}
+.sheet p{font-size:15.5px;color:var(--ink-2);margin:14px 0 16px}
+.sheet .acts{margin-top:0}
+@keyframes up{from{transform:translateY(100%)}to{transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 82px);width:calc(100% - 28px);max-width:452px;background:var(--ink);color:var(--paper);border-radius:16px;padding:8px 8px 8px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14.5px;z-index:15;animation:pop .2s both}
+.toast button{min-height:40px;padding:0 14px;border-radius:11px;background:color-mix(in srgb,var(--paper) 16%,transparent);font-weight:700;font-size:14px;flex:none}
+@keyframes pop{from{opacity:0;margin-bottom:-10px}to{opacity:1;margin-bottom:0}}
+
+/* welcome */
+.welcome{justify-content:center;gap:14px}
+.welcome .big{font-family:var(--display);font-weight:900;font-size:76px;line-height:1;color:var(--seal);writing-mode:vertical-rl;align-self:flex-start;letter-spacing:.04em}
+.welcome h1{font-family:var(--display);font-weight:900;font-size:clamp(34px,10.5vw,44px);line-height:1.08;text-wrap:balance;margin-top:8px}
+.welcome p{font-size:17px;max-width:21em}
+.welcome form,.welcome .sure{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.welcome label{font-weight:700;font-size:15px}
+.welcome input{width:100%;min-height:58px;border-radius:16px;border:2px solid var(--ink);background:var(--tile);color:var(--ink);padding:0 16px;font-family:var(--display);font-weight:700;font-size:24px}
+.welcome .btn{min-height:56px;font-size:17px}
+.hint{font-size:13.5px;color:var(--ink-2)}
+.hint.err{color:var(--seal);font-weight:700}
+.sure .q1{font-family:var(--display);font-weight:900;font-size:clamp(40px,13vw,58px);line-height:1.05;overflow-wrap:anywhere}
+.sure .q2{font-size:19px}
+.wait{align-items:center;justify-content:center;color:var(--ink-2);font-size:15px}
+.wait .jp{font-size:54px;color:var(--indigo);font-weight:900}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- wachten -->
+  <div class="scroll wait" id="wait"><span class="jp" lang="ja" aria-hidden="true">榕</span><span>Even zoeken waar het boompje staat.</span></div>
+
+  <!-- welkom -->
+  <div class="scroll welcome" id="welcome" hidden>
+    <span class="big" lang="ja" aria-hidden="true">命名</span>
+    <div id="ask">
+      <h1>Dag Wouter en Nona.</h1>
+      <p style="margin-top:12px">Dit boompje is van jullie. Deze app zegt wanneer het iets nodig heeft, zodat jullie er zelf niet aan moeten denken.</p>
+      <p style="margin-top:10px">Eén ding eerst: het heeft nog geen naam.</p>
+      <form id="nameform" autocomplete="off">
+        <label for="nm">Hoe gaat hij heten?</label>
+        <input id="nm" name="nm" type="text" maxlength="24" enterkeyhint="done" autocapitalize="words">
+        <button class="btn p" type="submit">Dat wordt het</button>
+        <p class="hint" id="nmhint">Denk even na. Wijzigen kan achteraf niet meer.</p>
+      </form>
+    </div>
+    <div class="sure" id="confirm" hidden>
+      <div class="q1" id="nmecho"></div>
+      <div class="q2">Voor altijd. Zeker?</div>
+      <button class="btn p" id="yes" style="margin-top:14px"></button>
+      <button class="btn q" id="back">Wacht, toch niet</button>
+    </div>
+  </div>
+
+  <!-- vandaag -->
+  <div class="scroll" id="v-vandaag" hidden>
+    <div class="head">
+      <div>
+        <div class="meta"><span id="date"></span><span id="sekki"></span></div>
+        <div class="name" id="name"></div>
+        <div class="mood" id="mood"></div>
+      </div>
+      <svg class="tree" viewBox="0 0 120 130" aria-hidden="true">
+        <g class="crown">
+          <path d="M60 104C38 96 40 78 60 73S84 54 62 44" fill="none" stroke="var(--bark)" stroke-width="8" stroke-linecap="round"/>
+          <path d="M52 78C42 72 36 66 30 62" fill="none" stroke="var(--bark)" stroke-width="3.500" stroke-linecap="round"/>
+          <g id="leaves" fill="var(--leaf)">
+            <ellipse cx="60" cy="30" rx="27" ry="17"/><ellipse cx="38" cy="42" rx="17" ry="11"/><ellipse cx="84" cy="40" rx="18" ry="11"/><ellipse cx="62" cy="14" rx="15" ry="9"/><ellipse cx="26" cy="60" rx="10" ry="6"/>
+          </g>
+        </g>
+        <path d="M78 100l7-12 6 7 5-3 4 8z" fill="var(--ink-2)" opacity=".55"/>
+        <path d="M22 100h76c0 14-9 22-22 22H44c-13 0-22-8-22-22z" fill="var(--pot)"/>
+        <rect x="18" y="97" width="84" height="7" rx="3.500" fill="var(--pot)"/>
+      </svg>
+    </div>
+    <div class="wen" id="wen" hidden></div>
+    <div class="stack"><h2>Nu <span id="cnt"></span></h2><div class="stack" id="due"></div></div>
+    <div class="stack"><h2>Straks</h2><div class="strip" id="soon"></div></div>
+    <p class="month" id="month"></p>
+  </div>
+
+  <!-- kalender -->
+  <div class="scroll" id="v-kalender" hidden>
+    <div class="calnav"><h1 id="calt"></h1><div><button id="prev" aria-label="Vorige maand">‹</button><button id="next" aria-label="Volgende maand">›</button></div></div>
+    <div class="cal" id="cal"></div>
+    <div class="pick" id="pick"></div>
+    <div class="key" id="key"></div>
+  </div>
+
+  <!-- logboek -->
+  <div class="scroll" id="v-logboek" hidden>
+    <div class="plate"><div class="n" id="pname"></div><p id="psince"></p></div>
+    <div class="stack"><h2>Laatst gedaan</h2><ul class="log" id="log"></ul></div>
+    <p class="fine" id="foot"></p>
+  </div>
+
+  <nav class="tabs" id="tabs" hidden>
+    <button class="tab" data-tab="vandaag"><span class="jp" lang="ja" aria-hidden="true">今</span>Vandaag<i class="dot" id="tabdot" hidden></i></button>
+    <button class="tab" data-tab="kalender"><span class="jp" lang="ja" aria-hidden="true">暦</span>Kalender</button>
+    <button class="tab" data-tab="logboek"><span class="jp" lang="ja" aria-hidden="true">記</span>Logboek</button>
+  </nav>
+</div>
+<div id="layer"></div>
+
+<script>
+(function(){
+"use strict";
+var MND=["januari","februari","maart","april","mei","juni","juli","augustus","september","oktober","november","december"];
+var MK=["jan","feb","mrt","apr","mei","jun","jul","aug","sep","okt","nov","dec"];
+var DK=["zo","ma","di","wo","do","vr","za"];
+
+/* Verzorgingsritme. every(m): dagen tussen twee beurten, per maand (0 = januari). */
+function groei(m){return m>=2&&m<=8;}
+function snoeitijd(m){return m>=3&&m<=8;}
+var TASKS=[
+  {id:"water",k:"水",name:"Grond voelen",doneLabel:"Gegoten",alt:"Nog vochtig",logDone:"Water gegeven",logSkip:"Gevoeld, nog vochtig",first:0,
+   every:function(m){return [4,4,3,3,2,2,2,2,3,3,4,4][m];},
+   sub:function(){return "Vinger onder het mos. Droog? Gieten tot het onderaan uitloopt, daarna het schoteltje leeg.";}},
+  {id:"plaag",k:"虫",name:"Blad nakijken",first:0,every:function(){return 7;},
+   sub:function(){return "Draai een paar blaadjes om. Spinsel, bruine schildjes of wit pluis? Dan is er bezoek.";}},
+  {id:"licht",k:"光",name:"Kwartslag draaien",first:14,every:function(){return 14;},
+   sub:function(){return "Anders groeit hij scheef naar het raam toe.";}},
+  {id:"mest",k:"肥",name:"Bemesten",first:28,every:function(m){return groei(m)?14:35;},
+   sub:function(m){return groei(m)?"Bonsaimest in het gietwater. Alleen als de grond al vochtig is.":"Groeit hij nog? Halve dosis. Staat hij stil? Sla over.";}},
+  {id:"snoei",k:"剪",name:"Scheuten knippen",first:28,every:function(m){return snoeitijd(m)?14:30;},
+   sub:function(m){return snoeitijd(m)?"Scheut met 6 à 8 blaadjes? Terug naar 2, net boven een blad.":"Alleen wat echt uitsteekt. De grote knipbeurt is voor april.";}},
+  {id:"stof",k:"葉",name:"Blad afstoffen",first:21,every:function(){return 30;},
+   sub:function(){return "Natte doek erover, of even onder een lauwe douche. Stof houdt licht tegen.";}}
+];
+var BYID={},BYK={};TASKS.forEach(function(t){BYID[t.id]=t;BYK[t.k]=t;});
+
+var NOTES=[
+ "De donkerste weken. Zet hem zo dicht mogelijk bij het raam en giet weinig. Bij de verwarming komt er sneller spint.",
+ "De dagen lengen, hij groeit nog traag. Zuinig gieten en kijken of er knoppen zwellen.",
+ "Hij schiet weer in gang. Vanaf nu om de twee weken mest.",
+ "Knipmaand. Kijk ook eens onder de schaal: steken er wortels uit de gaten?",
+ "Volle groei. Vaker gieten, scheuten bijhouden. Verpotten kan nog tot juni.",
+ "Blijven de nachten boven 15 °C, dan mag hij naar buiten. Eerst een week in de schaduw.",
+ "Buiten droogt de schaal snel uit. Elke dag even voelen.",
+ "Blijven knippen en mesten. Felle zon achter glas verbrandt het blad.",
+ "Terug naar binnen voor de nachten onder 15 °C zakken. Eerst nakijken op meelifters.",
+ "Minder licht, dus minder water en mest. Raamplek.",
+ "Verwarming aan, droge lucht. Weg van de radiator. Een groeilamp mag.",
+ "Rustmaand. Gieten als de grond erom vraagt, verder met rust laten."
+];
+/* De 24 sekki van de Japanse almanak; begindatum op een dag na juist. */
+var SEKKI=[[1,5,"小寒","kleine kou"],[1,20,"大寒","grote kou"],[2,4,"立春","begin van de lente"],[2,19,"雨水","regenwater"],[3,5,"啓蟄","insecten ontwaken"],[3,20,"春分","lente-evening"],[4,4,"清明","helder en klaar"],[4,20,"穀雨","graanregen"],[5,5,"立夏","begin van de zomer"],[5,21,"小満","kleine volheid"],[6,5,"芒種","graan in de aar"],[6,21,"夏至","zomerzonnewende"],[7,7,"小暑","kleine hitte"],[7,22,"大暑","grote hitte"],[8,7,"立秋","begin van de herfst"],[8,23,"処暑","einde van de hitte"],[9,7,"白露","witte dauw"],[9,23,"秋分","herfst-evening"],[10,8,"寒露","koude dauw"],[10,23,"霜降","eerste rijp"],[11,7,"立冬","begin van de winter"],[11,22,"小雪","lichte sneeuw"],[12,7,"大雪","zware sneeuw"],[12,21,"冬至","winterzonnewende"]];
+
+function pad(n){return n<10?"0"+n:""+n;}
+function iso(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());}
+function parse(s){var p=s.split("-");return new Date(+p[0],+p[1]-1,+p[2],12);}
+function addD(s,n){var d=parse(s);d.setDate(d.getDate()+n);return iso(d);}
+function diff(a,b){return Math.round((parse(a)-parse(b))/864e5);}
+function mOf(s){return +s.split("-")[1]-1;}
+function isDate(s){return typeof s==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(s);}
+function short(s){var d=parse(s);return DK[d.getDay()]+" "+d.getDate()+" "+MK[d.getMonth()];}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function nameOf(v){return typeof v==="string"?v.replace(/\s+/g," ").trim().slice(0,24):"";}
+function el(id){return document.getElementById(id);}
+
+var TODAY=iso(new Date());
+var state={name:null,since:TODAY,done:{},log:[]};
+var TABS=["vandaag","kalender","logboek"];
+var view={tab:"vandaag",y:parse(TODAY).getFullYear(),m:parse(TODAY).getMonth(),sel:TODAY};
+var pending=null,sheet=null,toast=null,toastTimer=0,busy=false;
+var ref=null,unsub=null,store="wacht",writing=Promise.resolve(),localOnly=false;
+try{localOnly=localStorage.getItem("bonsai-almanak-lokaal")==="1";}catch(e){}
+
+function clean(raw){
+  var s={name:null,since:TODAY,done:{},log:[]};
+  if(!raw||typeof raw!=="object")return s;
+  if(nameOf(raw.name))s.name=nameOf(raw.name);
+  if(isDate(raw.since))s.since=raw.since;
+  function one(v){if(!v||!isDate(v.d))return null;var o={d:v.d};if(v.n>0&&v.n<60)o.n=Math.round(v.n);return o;}
+  if(raw.done&&typeof raw.done==="object")TASKS.forEach(function(t){var v=one(raw.done[t.id]);if(v)s.done[t.id]=v;});
+  if(Array.isArray(raw.log))raw.log.slice(0,40).forEach(function(e){
+    if(e&&BYID[e.t]&&isDate(e.d))s.log.push({t:e.t,d:e.d,s:e.s?1:0,p:one(e.p)});
+  });
+  return s;
+}
+function dueOf(t){
+  var l=state.done[t.id];
+  return l?addD(l.d,l.n||t.every(mOf(l.d))):addD(state.since,t.first);
+}
+function whenText(n){
+  if(n<-1)return (-n)+" dagen te laat";
+  if(n===-1)return "sinds gisteren";
+  if(n===0)return "vandaag";
+  if(n===1)return "morgen";
+  return "over "+n+" dagen";
+}
+function save(){
+  var copy=JSON.parse(JSON.stringify(state));
+  try{localStorage.setItem("bonsai-almanak",JSON.stringify(copy));}catch(e){}
+  if(!ref)return;
+  writing=writing.then(function(){return ref.set(copy);}).catch(function(err){
+    if(err&&err.code==="invalid_argument"){
+      store="lokaal";ref=null;localOnly=true;if(unsub){try{unsub();}catch(e){}}
+      try{localStorage.setItem("bonsai-almanak-lokaal","1");}catch(e){}
+    }else store="fout";
+    render();
+  });
+}
+function act(id,skip){
+  var t=BYID[id],prev=state.done[id]||null,now={d:TODAY};
+  if(id==="water"&&skip)now.n=mOf(TODAY)>=4&&mOf(TODAY)<=7?1:2;
+  state.done[id]=now;
+  state.log.unshift({t:id,d:TODAY,s:skip?1:0,p:prev});
+  state.log=state.log.slice(0,40);
+  var n=diff(dueOf(t),TODAY);
+  toast={text:(skip?(t.alt?"Goed. ":"Overgeslagen. "):"Genoteerd. ")+"Volgende keer "+whenText(n)+"."};
+  clearTimeout(toastTimer);toastTimer=setTimeout(function(){toast=null;paintLayer();},5200);
+  save();
+}
+function undo(){
+  if(!state.log.length)return;
+  var e=state.log.shift();
+  if(e.p)state.done[e.t]=e.p;else delete state.done[e.t];
+  toast=null;save();render();
+}
+
+function plan(y,m){
+  var first=iso(new Date(y,m,1,12)),last=iso(new Date(y,m+1,0,12)),map={};
+  function put(d,k){var a=map[d]=map[d]||[];if(a.indexOf(k)<0)a.push(k);}
+  state.log.forEach(function(e){if(e.d>=first&&e.d<=last&&e.d<TODAY&&!e.s)put(e.d,BYID[e.t].k);});
+  if(last>=TODAY)TASKS.forEach(function(t){
+    var d=dueOf(t),i=0;if(d<TODAY)d=TODAY;
+    while(d<=last&&i++<70){if(d>=first)put(d,t.k);d=addD(d,t.every(mOf(d)));}
+  });
+  return map;
+}
+
+function paintLayer(){
+  var h="";
+  if(toast)h+='<div class="toast" role="status"><span>'+esc(toast.text)+'</span><button id="tundo">Ongedaan</button></div>';
+  if(sheet){
+    var t=BYID[sheet],n=diff(dueOf(t),TODAY);
+    h+='<div class="veil" id="veil"><div class="sheet" role="dialog" aria-label="'+esc(t.name)+'"><div class="grab"></div>'+
+      '<div class="top"><div class="mark" lang="ja" aria-hidden="true">'+t.k+'</div><div><h3>'+t.name+'</h3><div class="when">'+whenText(n)+', '+short(addD(TODAY,n))+'</div></div></div>'+
+      '<p>'+t.sub(mOf(TODAY))+'</p>'+
+      '<div class="acts"><button class="btn p" data-a="'+t.id+'">Nu al gedaan</button><button class="btn q" id="close">Sluiten</button></div></div></div>';
+  }
+  el("layer").innerHTML=h;
+}
+
+function render(){
+  var named=!!state.name,waiting=!named&&store==="wacht";
+  el("wait").hidden=!waiting;
+  el("welcome").hidden=named||waiting;
+  el("tabs").hidden=!named;
+  TABS.forEach(function(t){el("v-"+t).hidden=!named||view.tab!==t;});
+  document.title=named?state.name+" · bonsai-almanak":"Bonsai-almanak";
+  if(!named){
+    el("ask").hidden=!!pending;el("confirm").hidden=!pending;
+    if(pending){el("nmecho").textContent=pending+".";el("yes").textContent="Ja, "+pending;}
+    paintLayer();return;
+  }
+  Array.prototype.forEach.call(document.querySelectorAll(".tab"),function(b){
+    if(b.dataset.tab===view.tab)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");
+  });
+
+  var d=parse(TODAY),m=d.getMonth();
+  var list=TASKS.map(function(t){return {t:t,n:diff(dueOf(t),TODAY)};}).sort(function(a,b){return a.n-b.n;});
+  var due=list.filter(function(x){return x.n<=0;}),soon=list.filter(function(x){return x.n>0;});
+  el("tabdot").hidden=!due.length||view.tab==="vandaag";
+
+  if(view.tab==="vandaag"){
+    var key=(m+1)*100+d.getDate(),sk=SEKKI[SEKKI.length-1];
+    SEKKI.forEach(function(s){if(s[0]*100+s[1]<=key)sk=s;});
+    el("date").textContent=short(TODAY);
+    el("sekki").innerHTML='<span class="jp" lang="ja">'+sk[2]+'</span> '+sk[3];
+    el("name").textContent=state.name;
+    var late=due.length&&due[0].n<=-2;
+    el("mood").textContent=!due.length?"Heeft niets nodig. Laat hem maar doen.":
+      late?"Wacht al even op jullie.":
+      due.length===1?"Vraagt één ding vandaag.":"Vraagt "+due.length+" dingen vandaag.";
+    el("leaves").setAttribute("fill",late?"var(--ink-2)":"var(--leaf)");
+
+    var days=diff(TODAY,state.since),w=el("wen");
+    if(days<28){
+      w.hidden=false;
+      w.innerHTML='<div><b>Dag '+(days+1)+' bij jullie.</b> Hij moet nog '+(28-days)+' dagen wennen. Laat hem staan waar hij staat. Niet verpotten, niet mesten, niet snoeien. Een paar blaadjes verliezen hoort erbij.</div><div class="bar"><i style="width:'+Math.max(4,Math.round(days/28*100))+'%"></i></div>';
+    }else w.hidden=true;
+
+    el("cnt").textContent=due.length||"";
+    el("due").innerHTML=due.length?due.map(function(x){
+      var t=x.t;
+      return '<div class="card" data-card="'+t.id+'"><div class="mark" lang="ja" aria-hidden="true">'+t.k+'</div>'+
+        '<div><h3>'+t.name+'</h3><div class="when">'+whenText(x.n)+'</div></div>'+
+        '<p>'+t.sub(m)+'</p>'+
+        '<div class="acts"><button class="btn p" data-a="'+t.id+'">'+(t.doneLabel||"Gedaan")+'</button>'+
+        '<button class="btn q" data-a="'+t.id+'" data-s="1">'+(t.alt||"Sla over")+'</button></div></div>';
+    }).join(""):'<div class="rest"><b>Vrij vandaag, Wouter en Nona.</b>'+(soon.length?"Eerstvolgende: "+soon[0].t.name.toLowerCase()+", "+whenText(soon[0].n)+".":"")+'</div>';
+    el("soon").innerHTML=soon.map(function(x){
+      return '<button class="chip" data-open="'+x.t.id+'"><span class="jp" lang="ja" aria-hidden="true">'+x.t.k+'</span><strong>'+x.t.name+'</strong><span>'+whenText(x.n)+'</span></button>';
+    }).join("");
+    var note="<b>"+MND[m].charAt(0).toUpperCase()+MND[m].slice(1)+".</b> "+NOTES[m];
+    if((m===3||m===4)&&d.getFullYear()>=2027&&(d.getFullYear()-2027)%2===0)note+=" Dit jaar is het verpotjaar.";
+    el("month").innerHTML=note;
+  }
+
+  if(view.tab==="kalender"){
+    el("calt").textContent=MND[view.m]+" "+view.y;
+    var map=plan(view.y,view.m),h="",i;
+    ["ma","di","wo","do","vr","za","zo"].forEach(function(x){h+='<div class="dw">'+x+'</div>';});
+    var lead=(new Date(view.y,view.m,1).getDay()+6)%7,nd=new Date(view.y,view.m+1,0).getDate();
+    for(i=0;i<lead;i++)h+='<div class="cell out"></div>';
+    for(i=1;i<=nd;i++){
+      var s=view.y+"-"+pad(view.m+1)+"-"+pad(i),ks=map[s]||[];
+      h+='<button class="cell'+(s<TODAY?" past":"")+(s===TODAY?" today":"")+(s===view.sel?" sel":"")+'" data-d="'+s+'"><span class="d">'+i+'</span><span class="k" lang="ja">'+ks.slice(0,3).join("")+'</span></button>';
+    }
+    el("cal").innerHTML=h;
+    var pk=map[view.sel]||[],names=pk.map(function(k){return BYK[k].name.toLowerCase();});
+    var inView=mOf(view.sel)===view.m&&+view.sel.slice(0,4)===view.y;
+    el("pick").innerHTML=!inView?"Tik op een dag.":"<b>"+short(view.sel)+".</b> "+(names.length?(view.sel<TODAY?"Gedaan: ":"")+names.join(", ")+".":(view.sel<TODAY?"Niets genoteerd.":"Niets te doen."));
+    el("key").innerHTML=TASKS.map(function(t){return '<span><i lang="ja">'+t.k+'</i>'+t.name.toLowerCase()+'</span>';}).join("");
+  }
+
+  if(view.tab==="logboek"){
+    el("pname").textContent=state.name;
+    var n=diff(TODAY,state.since);
+    el("psince").textContent="Bij Wouter en Nona sinds "+short(state.since)+(n>0?". Dat is "+n+(n===1?" dag.":" dagen."):".");
+    el("log").innerHTML=state.log.length?state.log.slice(0,12).map(function(e){
+      var t=BYID[e.t],txt=e.s?(t.logSkip||t.name+" <em>overgeslagen</em>"):(t.logDone||t.name);
+      return '<li><span class="jp" lang="ja" aria-hidden="true">'+t.k+'</span><span>'+txt+'</span><time datetime="'+e.d+'">'+short(e.d)+'</time></li>';
+    }).join(""):'<li style="display:block;color:var(--ink-2)">Nog leeg. De eerste beurt staat klaar bij Vandaag.</li>';
+    el("foot").textContent={wacht:"Bezig met ophalen.",gedeeld:"Wat jullie afvinken, zien jullie allebei.",lokaal:"Dit toestel onthoudt alles zelf. Een ander toestel ziet het niet.",fout:"Opslaan lukte niet. Probeer straks nog eens."}[store]||"";
+  }
+  paintLayer();
+}
+
+function go(tab){
+  if(TABS.indexOf(tab)<0)tab="vandaag";
+  view.tab=tab;sheet=null;render();
+  var v=el("v-"+tab);if(v)v.scrollTop=0;
+}
+
+document.addEventListener("click",function(ev){
+  var b=ev.target.closest("button");
+  if(!b){if(ev.target.id==="veil"){sheet=null;paintLayer();}return;}
+  if(b.dataset.tab){if(location.hash.slice(1)!==b.dataset.tab){try{location.hash=b.dataset.tab;}catch(e){}}go(b.dataset.tab);}
+  else if(b.dataset.a){
+    if(busy)return;
+    var id=b.dataset.a,skip=!!b.dataset.s,card=document.querySelector('[data-card="'+id+'"]');
+    var still=window.matchMedia&&window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+    try{if(navigator.vibrate)navigator.vibrate(12);}catch(e){}
+    sheet=null;
+    if(card&&!skip&&!still){
+      busy=true;
+      card.insertAdjacentHTML("beforeend",'<div class="stamp"><span lang="ja">済</span></div>');
+      setTimeout(function(){busy=false;act(id,skip);render();},620);
+    }else{act(id,skip);render();}
+  }
+  else if(b.dataset.open){sheet=b.dataset.open;paintLayer();}
+  else if(b.dataset.d){view.sel=b.dataset.d;render();}
+  else if(b.id==="close"){sheet=null;paintLayer();}
+  else if(b.id==="tundo")undo();
+  else if(b.id==="back"){pending=null;render();el("nm").focus();}
+  else if(b.id==="yes"&&pending&&!state.name){state.name=pending;state.since=TODAY;pending=null;save();render();}
+  else if(b.id==="prev"||b.id==="next"){
+    view.m+=b.id==="next"?1:-1;
+    if(view.m>11){view.m=0;view.y++;}if(view.m<0){view.m=11;view.y--;}
+    render();
+  }
+});
+el("nameform").addEventListener("submit",function(ev){
+  ev.preventDefault();
+  var v=nameOf(el("nm").value),h=el("nmhint");
+  if(!v){h.textContent="Eerst een naam typen.";h.className="hint err";el("nm").focus();return;}
+  pending=v;render();
+});
+window.addEventListener("hashchange",function(){var t=location.hash.slice(1);if(TABS.indexOf(t)>=0&&t!==view.tab)go(t);});
+
+try{var loc=localStorage.getItem("bonsai-almanak");if(loc)state=clean(JSON.parse(loc));}catch(e){}
+if(TABS.indexOf(location.hash.slice(1))>=0)view.tab=location.hash.slice(1);
+render();
+
+var slow=setTimeout(function(){if(store==="wacht"){store="lokaal";render();}},10000);
+var use=window.claude&&typeof window.claude.use==="function"?window.claude.use("db"):Promise.resolve(null);
+Promise.resolve(use).then(function(db){
+  if(!db||localOnly){clearTimeout(slow);store="lokaal";render();return;}
+  ref=db.doc("bonsai/state");
+  unsub=ref.onSnapshot(function(snap){
+    if(snap.exists){var inc=clean(snap.data());if(inc.name||!state.name)state=inc;}
+    if(!snap.metadata||!snap.metadata.fromCache){clearTimeout(slow);store="gedeeld";}
+    if(!busy)render();
+  },function(){clearTimeout(slow);store="lokaal";ref=null;render();});
+}).catch(function(){clearTimeout(slow);store="lokaal";render();});
+})();
+</script>
+</body>
+</html>
