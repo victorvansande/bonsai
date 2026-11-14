@@ -2,7 +2,17 @@
 
 Een kleine web-app voor Wouter en Nona. Ze houdt bij wanneer hun ficus bonsai aandacht vraagt: grond voelen, blad nakijken, draaien, mesten, knippen en afstoffen. Het ritme verschuift per maand.
 
-Eén bestand, geen build: `index.html`. Alles wordt in de browser van het toestel bewaard (`localStorage`), dus elk toestel houdt zijn eigen logboek bij.
+Eén bestand, geen build: `index.html`.
+
+## Waar de gegevens staan
+
+Op de telefoon zelf, in twee kopieën (`localStorage` en IndexedDB). De app sluiten of de telefoon herstarten verandert daar niets aan. Wat wel alles wist: de websitegegevens van de browser wissen, de app van het beginscherm verwijderen (iPhone), of een privévenster gebruiken.
+
+Daarom zit er in het Logboek een reservecode. Die code bevat de naam en de hele stand, en zet alles terug op dezelfde of een andere telefoon.
+
+Op iPhone heeft de app op het beginscherm een eigen geheugen, los van Safari. Dus eerst op het beginscherm zetten, dan pas de naam kiezen.
+
+Testen zonder de echte gegevens te raken: open de app met `?test` achter het adres.
 
 ## Online zetten
 

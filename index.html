@@ -143,7 +143,7 @@ h2{font-size:13px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
 .sheet .acts{margin-top:0}
 @keyframes up{from{transform:translateY(100%)}to{transform:none}}
 @keyframes fade{from{opacity:0}to{opacity:1}}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 82px);width:calc(100% - 28px);max-width:452px;background:var(--ink);color:var(--paper);border-radius:16px;padding:8px 8px 8px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14.5px;z-index:15;animation:pop .2s both}
+.toast{min-height:56px;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 82px);width:calc(100% - 28px);max-width:452px;background:var(--ink);color:var(--paper);border-radius:16px;padding:8px 8px 8px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14.5px;z-index:15;animation:pop .2s both}
 .toast button{min-height:40px;padding:0 14px;border-radius:11px;background:color-mix(in srgb,var(--paper) 16%,transparent);font-weight:700;font-size:14px;flex:none}
 @keyframes pop{from{opacity:0;margin-bottom:-10px}to{opacity:1;margin-bottom:0}}
 
@@ -163,6 +163,16 @@ h2{font-size:13px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
 .wait{align-items:center;justify-content:center;color:var(--ink-2);font-size:15px}
 .wait .jp{font-size:54px;color:var(--indigo);font-weight:900}
 
+.warn{background:var(--seal);color:#FFF6EE;border-radius:16px;padding:13px 15px;font-size:14.5px;font-weight:500}
+.tip{background:var(--tile);border-radius:16px;padding:13px 15px;font-size:14.5px}
+.tip b{display:block;margin-bottom:2px}
+.link{align-self:flex-start;min-height:44px;font-size:14.5px;color:var(--ink-2);text-decoration:underline;text-underline-offset:3px}
+.backup{background:var(--tile);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px;font-size:14.5px}
+.backup b{font-size:16px}
+.backup .acts{margin-top:2px;grid-template-columns:1fr 1fr}
+.backup .ok{color:var(--leaf);font-weight:700}
+.sheet textarea{width:100%;min-height:110px;border-radius:14px;border:2px solid var(--ink);background:var(--tile);color:var(--ink);padding:12px;font:13px/1.4 ui-monospace,Menlo,monospace;word-break:break-all;resize:none}
+.badge{position:fixed;top:calc(env(safe-area-inset-top) + 6px);left:50%;transform:translateX(-50%);background:var(--seal);color:#FFF6EE;font-size:11px;font-weight:700;letter-spacing:.1em;padding:3px 10px;border-radius:9px;z-index:30}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -179,12 +189,15 @@ h2{font-size:13px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
       <h1>Dag Wouter en Nona.</h1>
       <p style="margin-top:12px">Dit boompje is van jullie. Deze app zegt wanneer het iets nodig heeft, zodat jullie er zelf niet aan moeten denken.</p>
       <p style="margin-top:10px">Eén ding eerst: het heeft nog geen naam.</p>
+      <p class="warn" id="nostore" style="margin-top:12px" hidden>Deze browser onthoudt niets. Waarschijnlijk een privévenster. Open de app in een gewoon venster, anders is de naam morgen weg.</p>
+      <div class="tip" id="iostip" style="margin-top:12px" hidden><b>Eerst op het beginscherm zetten.</b>Tik op Deel en dan op "Zet op beginscherm". Open de app vanaf daar en kies dan pas de naam. De app op het beginscherm heeft een eigen geheugen, los van Safari.</div>
       <form id="nameform" autocomplete="off">
         <label for="nm">Hoe gaat hij heten?</label>
         <input id="nm" name="nm" type="text" maxlength="24" enterkeyhint="done" autocapitalize="words">
         <button class="btn p" type="submit">Dat wordt het</button>
         <p class="hint" id="nmhint">Denk even na. Wijzigen kan achteraf niet meer.</p>
       </form>
+      <button class="link" id="havecode">We hebben al een reservecode</button>
     </div>
     <div class="sure" id="confirm" hidden>
       <div class="q1" id="nmecho"></div>
@@ -215,6 +228,7 @@ h2{font-size:13px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
         <rect x="18" y="97" width="84" height="7" rx="3.500" fill="var(--pot)"/>
       </svg>
     </div>
+    <p class="warn" id="nostore2" hidden>Deze browser onthoudt niets. Open de app in een gewoon venster, niet in een privévenster.</p>
     <div class="wen" id="wen" hidden></div>
     <div class="stack"><h2>Nu <span id="cnt"></span></h2><div class="stack" id="due"></div></div>
     <div class="stack"><h2>Straks</h2><div class="strip" id="soon"></div></div>
@@ -233,6 +247,12 @@ h2{font-size:13px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
   <div class="scroll" id="v-logboek" hidden>
     <div class="plate"><div class="n" id="pname"></div><p id="psince"></p></div>
     <div class="stack"><h2>Laatst gedaan</h2><ul class="log" id="log"></ul></div>
+    <div class="backup">
+      <b>Reservecode</b>
+      <span>Alles staat op deze telefoon. Stuur de code af en toe naar elkaar. Raakt de telefoon zijn geheugen kwijt, of wil de ander dezelfde stand, dan zet de code alles terug.</span>
+      <div class="acts"><button class="btn p" id="copy">Kopieer code</button><button class="btn q" id="enter">Code invoeren</button></div>
+      <span id="bk"></span>
+    </div>
     <p class="fine" id="foot"></p>
   </div>
 
@@ -243,6 +263,7 @@ h2{font-size:13px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
   </nav>
 </div>
 <div id="layer"></div>
+<div class="badge" id="testbadge" hidden>TEST</div>
 
 <script>
 (function(){
@@ -306,7 +327,41 @@ var TABS=["vandaag","kalender","logboek"];
 var view={tab:"vandaag",y:parse(TODAY).getFullYear(),m:parse(TODAY).getMonth(),sel:TODAY};
 var pending=null,sheet=null,toast=null,toastTimer=0,busy=false;
 var ref=null,unsub=null,store="wacht",writing=Promise.resolve(),localOnly=false;
+var TEST=/[?&]test\b/.test(location.search);
+var KEY=TEST?"bonsai-almanak-test":"bonsai-almanak";
+var canStore=true,pinned=null,copied="";
+try{localStorage.setItem(KEY+"-t","1");canStore=localStorage.getItem(KEY+"-t")==="1";localStorage.removeItem(KEY+"-t");}catch(e){canStore=false;}
 try{localOnly=localStorage.getItem("bonsai-almanak-lokaal")==="1";}catch(e){}
+
+/* Tweede kopie in IndexedDB, voor als localStorage leeg terugkomt. */
+function idb(cb){
+  try{
+    var r=indexedDB.open("bonsai-almanak",1);
+    r.onupgradeneeded=function(){r.result.createObjectStore("kv");};
+    r.onsuccess=function(){cb(r.result);};
+    r.onerror=function(){cb(null);};
+  }catch(e){cb(null);}
+}
+function idbPut(v){idb(function(d){if(!d)return;try{d.transaction("kv","readwrite").objectStore("kv").put(v,KEY);}catch(e){}});}
+function idbGet(cb){idb(function(d){
+  if(!d)return cb(null);
+  try{var q=d.transaction("kv").objectStore("kv").get(KEY);q.onsuccess=function(){cb(q.result||null);};q.onerror=function(){cb(null);};}catch(e){cb(null);}
+});}
+/* Vraag de browser om de opslag niet op te ruimen. */
+function pin(){
+  try{
+    if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().then(function(ok){pinned=!!ok;if(state.name&&view.tab==="logboek")render();},function(){});
+  }catch(e){}
+}
+function toCode(){
+  var c={name:state.name,since:state.since,done:state.done,log:state.log.slice(0,15).map(function(e){return {t:e.t,d:e.d,s:e.s};})};
+  return "BONSAI1."+btoa(unescape(encodeURIComponent(JSON.stringify(c)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+function fromCode(txt){
+  var m=/BONSAI1\.([A-Za-z0-9_-]+)/.exec(String(txt).replace(/\s+/g,""));
+  if(!m)return null;
+  try{var inc=clean(JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/-/g,"+").replace(/_/g,"/"))))));return inc.name?inc:null;}catch(e){return null;}
+}
 
 function clean(raw){
   var s={name:null,since:TODAY,done:{},log:[]};
@@ -333,8 +388,10 @@ function whenText(n){
 }
 function save(){
   var copy=JSON.parse(JSON.stringify(state));
-  try{localStorage.setItem("bonsai-almanak",JSON.stringify(copy));}catch(e){}
-  if(!ref)return;
+  var txt=JSON.stringify(copy);
+  try{localStorage.setItem(KEY,txt);canStore=localStorage.getItem(KEY)===txt;}catch(e){canStore=false;}
+  idbPut(copy);copied="";
+  if(!ref||TEST)return;
   writing=writing.then(function(){return ref.set(copy);}).catch(function(err){
     if(err&&err.code==="invalid_argument"){
       store="lokaal";ref=null;localOnly=true;if(unsub){try{unsub();}catch(e){}}
@@ -350,7 +407,7 @@ function act(id,skip){
   state.log.unshift({t:id,d:TODAY,s:skip?1:0,p:prev});
   state.log=state.log.slice(0,40);
   var n=diff(dueOf(t),TODAY);
-  toast={text:(skip?(t.alt?"Goed. ":"Overgeslagen. "):"Genoteerd. ")+"Volgende keer "+whenText(n)+"."};
+  toast={undo:true,text:(skip?(t.alt?"Goed. ":"Overgeslagen. "):"Genoteerd. ")+"Volgende keer "+whenText(n)+"."};
   clearTimeout(toastTimer);toastTimer=setTimeout(function(){toast=null;paintLayer();},5200);
   save();
 }
@@ -374,8 +431,18 @@ function plan(y,m){
 
 function paintLayer(){
   var h="";
-  if(toast)h+='<div class="toast" role="status"><span>'+esc(toast.text)+'</span><button id="tundo">Ongedaan</button></div>';
-  if(sheet){
+  if(toast)h+='<div class="toast" role="status"><span>'+esc(toast.text)+'</span>'+(toast.undo?'<button id="tundo">Ongedaan</button>':'')+'</div>';
+  if(sheet==="@restore"&&el("codein"))return;
+  if(sheet==="@restore"){
+    h+='<div class="veil" id="veil"><div class="sheet" role="dialog" aria-label="Code invoeren"><div class="grab"></div><h3>Code invoeren</h3>'+
+      '<p style="margin:8px 0 12px">Plak hier de reservecode. Ze begint met BONSAI1.</p><textarea id="codein" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>'+
+      '<p class="hint err" id="codeerr" style="margin:8px 0 0;min-height:20px"></p>'+
+      '<div class="acts" style="margin-top:8px"><button class="btn p" id="dorestore">Terugzetten</button><button class="btn q" id="close">Sluiten</button></div></div></div>';
+  }else if(sheet==="@code"){
+    h+='<div class="veil" id="veil"><div class="sheet" role="dialog" aria-label="Reservecode"><div class="grab"></div><h3>Reservecode</h3>'+
+      '<p style="margin:8px 0 12px">Kopiëren lukte niet vanzelf. Houd de tekst ingedrukt en kies Kopieer.</p><textarea id="codeout" readonly>'+esc(toCode())+'</textarea>'+
+      '<div class="acts" style="margin-top:12px;grid-template-columns:1fr"><button class="btn q" id="close">Sluiten</button></div></div></div>';
+  }else if(sheet){
     var t=BYID[sheet],n=diff(dueOf(t),TODAY);
     h+='<div class="veil" id="veil"><div class="sheet" role="dialog" aria-label="'+esc(t.name)+'"><div class="grab"></div>'+
       '<div class="top"><div class="mark" lang="ja" aria-hidden="true">'+t.k+'</div><div><h3>'+t.name+'</h3><div class="when">'+whenText(n)+', '+short(addD(TODAY,n))+'</div></div></div>'+
@@ -392,6 +459,10 @@ function render(){
   el("tabs").hidden=!named;
   TABS.forEach(function(t){el("v-"+t).hidden=!named||view.tab!==t;});
   document.title=named?state.name+" · bonsai-almanak":"Bonsai-almanak";
+  var forget=!canStore&&store!=="gedeeld";
+  el("testbadge").hidden=!TEST;
+  el("nostore").hidden=el("nostore2").hidden=!forget;
+  el("iostip").hidden=!(navigator.standalone===false&&store!=="gedeeld");
   if(!named){
     el("ask").hidden=!!pending;el("confirm").hidden=!pending;
     if(pending){el("nmecho").textContent=pending+".";el("yes").textContent="Ja, "+pending;}
@@ -466,7 +537,8 @@ function render(){
       var t=BYID[e.t],txt=e.s?(t.logSkip||t.name+" <em>overgeslagen</em>"):(t.logDone||t.name);
       return '<li><span class="jp" lang="ja" aria-hidden="true">'+t.k+'</span><span>'+txt+'</span><time datetime="'+e.d+'">'+short(e.d)+'</time></li>';
     }).join(""):'<li style="display:block;color:var(--ink-2)">Nog leeg. De eerste beurt staat klaar bij Vandaag.</li>';
-    el("foot").textContent={wacht:"Bezig met ophalen.",gedeeld:"Wat jullie afvinken, zien jullie allebei.",lokaal:"Dit toestel onthoudt alles zelf. Een ander toestel ziet het niet.",fout:"Opslaan lukte niet. Probeer straks nog eens."}[store]||"";
+    el("bk").innerHTML=copied?'<span class="ok">'+esc(copied)+'</span>':"";
+    el("foot").textContent=(pinned===true?"De browser heeft beloofd dit niet op te ruimen. ":"")+{wacht:"Bezig met ophalen.",gedeeld:"Wat jullie afvinken, zien jullie allebei.",lokaal:"Deze telefoon onthoudt alles zelf, ook als de app dicht is. Een andere telefoon ziet het niet.",fout:"Opslaan lukte niet. Probeer straks nog eens."}[store]||"";
   }
   paintLayer();
 }
@@ -496,9 +568,22 @@ document.addEventListener("click",function(ev){
   else if(b.dataset.open){sheet=b.dataset.open;paintLayer();}
   else if(b.dataset.d){view.sel=b.dataset.d;render();}
   else if(b.id==="close"){sheet=null;paintLayer();}
+  else if(b.id==="havecode"||b.id==="enter"){sheet="@restore";paintLayer();}
+  else if(b.id==="dorestore"){
+    var inc=fromCode(el("codein").value),er=el("codeerr");
+    if(!inc){er.textContent="Die code klopt niet. Plak ze volledig, van BONSAI1 tot het einde.";return;}
+    if(state.name&&state.name!==inc.name){er.textContent="Deze code hoort bij "+inc.name+", niet bij "+state.name+".";return;}
+    state=inc;pending=null;sheet=null;toast={text:inc.name+" is terug."};
+    clearTimeout(toastTimer);toastTimer=setTimeout(function(){toast=null;paintLayer();},4000);
+    save();pin();el("layer").innerHTML="";render();
+  }
+  else if(b.id==="copy"){
+    var code=toCode(),done=function(){copied="Gekopieerd. Plak ze nu in een bericht aan elkaar.";render();},fail=function(){sheet="@code";paintLayer();};
+    try{navigator.clipboard.writeText(code).then(done,fail);}catch(e){fail();}
+  }
   else if(b.id==="tundo")undo();
   else if(b.id==="back"){pending=null;render();el("nm").focus();}
-  else if(b.id==="yes"&&pending&&!state.name){state.name=pending;state.since=TODAY;pending=null;save();render();}
+  else if(b.id==="yes"&&pending&&!state.name){state.name=pending;state.since=TODAY;pending=null;save();pin();render();}
   else if(b.id==="prev"||b.id==="next"){
     view.m+=b.id==="next"?1:-1;
     if(view.m>11){view.m=0;view.y++;}if(view.m<0){view.m=11;view.y--;}
@@ -513,14 +598,21 @@ el("nameform").addEventListener("submit",function(ev){
 });
 window.addEventListener("hashchange",function(){var t=location.hash.slice(1);if(TABS.indexOf(t)>=0&&t!==view.tab)go(t);});
 
-try{var loc=localStorage.getItem("bonsai-almanak");if(loc)state=clean(JSON.parse(loc));}catch(e){}
+try{var loc=localStorage.getItem(KEY);if(loc)state=clean(JSON.parse(loc));}catch(e){}
+if(!state.name)idbGet(function(v){
+  if(state.name||!v)return;
+  var inc=clean(v);if(!inc.name)return;
+  state=inc;try{localStorage.setItem(KEY,JSON.stringify(inc));}catch(e){}
+  render();
+});
+if(state.name)pin();
 if(TABS.indexOf(location.hash.slice(1))>=0)view.tab=location.hash.slice(1);
 render();
 
 var slow=setTimeout(function(){if(store==="wacht"){store="lokaal";render();}},10000);
 var use=window.claude&&typeof window.claude.use==="function"?window.claude.use("db"):Promise.resolve(null);
 Promise.resolve(use).then(function(db){
-  if(!db||localOnly){clearTimeout(slow);store="lokaal";render();return;}
+  if(!db||localOnly||TEST){clearTimeout(slow);store="lokaal";render();return;}
   ref=db.doc("bonsai/state");
   unsub=ref.onSnapshot(function(snap){
     if(snap.exists){var inc=clean(snap.data());if(inc.name||!state.name)state=inc;}
