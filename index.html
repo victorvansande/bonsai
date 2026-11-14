@@ -79,7 +79,17 @@ h2{font-size:13px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
 .stack{display:flex;flex-direction:column;gap:10px}
 
 /* due cards */
-.card{position:relative;background:var(--tile);border-radius:20px;padding:16px;display:grid;grid-template-columns:54px 1fr;gap:4px 14px;overflow:hidden}
+.card{position:relative;background:var(--tile);border-radius:20px;padding:16px;display:grid;grid-template-columns:54px 1fr auto;gap:4px 14px;overflow:hidden}
+.tipb{align-self:start;min-height:36px;padding:0 13px;border-radius:18px;border:1.5px solid var(--rule);font-size:13px;font-weight:700;color:var(--ink-2)}
+.tipb:active{background:var(--sunk)}
+.steps{list-style:none;counter-reset:st;display:flex;flex-direction:column;gap:11px;margin:14px 0 4px}
+.steps li{counter-increment:st;display:grid;grid-template-columns:26px 1fr;gap:10px;font-size:15.5px;line-height:1.42}
+.steps li::before{content:counter(st);font-family:var(--display);font-weight:900;font-size:19px;color:var(--seal);line-height:1.15}
+.sheet .aside{font-size:14px;color:var(--ink-2);border-left:3px solid var(--rule);padding-left:11px;margin:12px 0 14px}
+.sheet .wn{font-size:13.5px;color:var(--ink-2);margin-top:2px}
+.hows{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.how{background:var(--tile);border-radius:16px;padding:12px 13px;text-align:left;display:flex;align-items:center;gap:10px;font-weight:700;font-size:14.5px;line-height:1.2;min-height:54px}
+.how .jp{font-size:22px;font-weight:900;color:var(--indigo);flex:none}
 .mark{width:54px;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:900;font-size:30px;background:var(--seal);color:#FFF6EE;transform:rotate(-3deg)}
 .card h3{font-size:18px;font-weight:700;line-height:1.2}
 .card .when{font-size:13px;color:var(--seal);font-weight:700;margin-top:1px}
@@ -161,7 +171,7 @@ h2{font-size:13px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
 
 /* sheet + toast */
 .veil{position:fixed;inset:0;background:rgba(10,12,18,.42);display:flex;align-items:flex-end;justify-content:center;z-index:20;animation:fade .16s both}
-.sheet{width:100%;max-width:480px;background:var(--paper);border-radius:26px 26px 0 0;padding:10px 18px calc(env(safe-area-inset-bottom) + 18px);animation:up .24s cubic-bezier(.2,.9,.3,1) both}
+.sheet{max-height:88%;overflow-y:auto;overscroll-behavior:contain;width:100%;max-width:480px;background:var(--paper);border-radius:26px 26px 0 0;padding:10px 18px calc(env(safe-area-inset-bottom) + 18px);animation:up .24s cubic-bezier(.2,.9,.3,1) both}
 .grab{width:40px;height:4px;border-radius:2px;background:var(--rule);margin:0 auto 14px}
 .sheet .top{display:grid;grid-template-columns:54px 1fr;gap:14px;align-items:center}
 .sheet .mark{background:var(--tile);color:var(--indigo);transform:none}
@@ -307,9 +317,9 @@ h2{font-size:13px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
 
   <!-- hulp -->
   <div class="scroll" id="v-hulp" hidden>
-    <div class="calnav"><h1>Er scheelt iets</h1></div>
-    <p class="lede">Tik aan wat jullie zien.</p>
-    <div class="stack" id="help"></div>
+    <div class="calnav"><h1>Hulp</h1></div>
+    <div class="stack"><h2>Hoe doe je het</h2><div class="hows" id="hows"></div></div>
+    <div class="stack"><h2>Er scheelt iets</h2><p class="lede" style="margin-top:-4px">Tik aan wat jullie zien.</p><div class="stack" id="help"></div></div>
     <p class="month">Komen jullie er niet uit? Stuur Julie en Vic een foto.</p>
   </div>
 
@@ -351,6 +361,53 @@ var TASKS=[
   {id:"stof",k:"葉",name:"Blad afstoffen",first:21,every:function(){return 30;},
    sub:function(){return "Natte doek erover, of even onder een lauwe douche. Stof houdt licht tegen.";}}
 ];
+/* Korte stappen per klus. [titel, wanneer, stappen, voetnoot] */
+var TIPS={
+ water:["Zo giet je","Wanneer de grond onder het mos droog aanvoelt.",[
+  "Voel onder het mos, een vingerkootje diep. Nog vochtig? Wacht een dag.",
+  "Droog? Giet langzaam met lauw water tot het onderaan uitloopt.",
+  "Wacht een minuut en giet nog eens. De eerste beurt maakt de grond nat, de tweede dringt door.",
+  "Giet na een kwartier het schoteltje leeg."],
+  "Loopt het water over de grond weg in plaats van erin? Zet de schaal tien minuten in een kom lauw water."],
+ plaag:["Zo kijk je het blad na","Elke week, in de winter extra goed.",[
+  "Draai drie of vier blaadjes om, ook onderin de kruin.",
+  "Kijk in de oksels, waar blad en takje samenkomen.",
+  "Spinsel is spint. Bruine bolletjes zijn schildluis. Wit pluis is wolluis.",
+  "Iets gevonden? Onder Er scheelt iets staat wat jullie doen."],null],
+ licht:["Zo draai je","Om de twee weken.",[
+  "Draai de schaal een kwartslag, altijd in dezelfde richting.",
+  "Kijk of hij nog vlak bij het raam staat. Elke meter verder scheelt veel licht.",
+  "Niet boven de radiator en niet in de tocht."],
+  "Verder blijft hij op zijn plek. Van verhuizen laat hij blad vallen."],
+ mest:["Zo bemest je","Maart tot september om de twee weken. In de winter alleen als hij groeit.",[
+  "Giet eerst gewoon water. Mest op droge grond verbrandt de wortels.",
+  "Doe vloeibare bonsaimest in de gieter, zoveel als het etiket zegt. Gewone kamerplantenvoeding kan ook, op halve dosis.",
+  "Giet daarmee zoals anders, tot het onderaan uitloopt."],
+  "Geen mest voor een zieke boom, en niet in de eerste maand na het verpotten."],
+ snoei:["Zo knip je","Het hele jaar licht, van april tot september vaker.",[
+  "Zoek scheuten met zes tot acht blaadjes.",
+  "Tel vanaf de tak twee blaadjes en knip er net boven, met een schone, scherpe schaar.",
+  "Knip de top korter dan de onderste takken. Onderaan mag hij langer doorgroeien.",
+  "Er komt wit sap uit de wonde. Afdeppen en handen wassen."],
+  "Dikke takken wegnemen doe je alleen tussen april en juni."],
+ foto:["Zo maak je de maandfoto","Eén keer per maand.",[
+  "Kies één vaste plek en één hoek, en houd die aan.",
+  "Daglicht, geen flits.",
+  "Een effen muur erachter toont de vorm het best."],null],
+ stof:["Zo stof je af","Ongeveer elke maand.",[
+  "Leg je hand onder het blad en veeg met een vochtige doek.",
+  "Of zet de schaal in de douche: lauw water, zachte straal, een halve minuut.",
+  "Laat hem uitlekken voor hij terug op zijn plek gaat."],
+  "Geen bladglans gebruiken."],
+ verpot:["Zo verpot je","Om de twee jaar, tussen april en juni. De eerste keer in het voorjaar van 2027.",[
+  "Leg klaar: bonsaigrond (akadama of een luchtige bonsaimix), een schaar en een houten stokje.",
+  "Til de boom uit de schaal en peuter met het stokje de oude grond tussen de wortels uit.",
+  "Knip tot een derde van de wortels weg, vooral de lange.",
+  "Laagje verse grond in de schaal, boom erop, opvullen. Duw de grond met het stokje tussen de wortels.",
+  "Grondig gieten. Daarna een maand geen mest en niet snoeien."],
+  "Niet in de winter en niet als hij ziek is. Gewone potgrond houdt te veel water vast."]
+};
+var HOWS=[["water","水","Gieten"],["mest","肥","Bemesten"],["snoei","剪","Snoeien"],["verpot","鉢","Verpotten"],["plaag","虫","Blad nakijken"],["licht","光","Draaien"],["stof","葉","Afstoffen"],["foto","写","Maandfoto"]];
 var HELP=[
  ["Er valt plots veel blad","Verhuisd, kou gehad, tocht of minder licht dan voordien.","Laat hem staan op de lichtste plek. Gewoon blijven gieten, geen mest. Nieuw blad volgt meestal binnen enkele weken."],
  ["De onderste blaadjes worden geel","Te nat, vaak samen met te weinig licht.","Laat de bovenlaag opdrogen voor je weer giet. Schoteltje leeg. Zet hem dichter bij het raam."],
@@ -471,6 +528,7 @@ function toFile(p){
 function sendOut(list){
   var files;try{files=list.map(toFile);}catch(e){shotMsg="Exporteren lukte niet.";render();return;}
   function download(){
+    if(window.claude){shotMsg="Exporteren werkt niet in dit venster. Open de app in Safari of Chrome, of vanaf het beginscherm.";render();return;}
     try{
       files.forEach(function(f,i){setTimeout(function(){
         var u=URL.createObjectURL(f),a=document.createElement("a");a.href=u;a.download=f.name;document.body.appendChild(a);a.click();a.remove();
@@ -579,6 +637,12 @@ function paintLayer(){
       '<p style="margin:8px 0 12px">Plak hier de reservecode. Ze begint met BONSAI1.</p><textarea id="codein" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>'+
       '<p class="hint err" id="codeerr" style="margin:8px 0 0;min-height:20px"></p>'+
       '<div class="acts" style="margin-top:8px"><button class="btn p" id="dorestore">Terugzetten</button><button class="btn q" id="close">Sluiten</button></div></div></div>';
+  }else if(sheet&&sheet.indexOf("@tip:")===0){
+    var tp=TIPS[sheet.slice(5)];
+    if(tp)h+='<div class="veil" id="veil"><div class="sheet" role="dialog" aria-label="'+esc(tp[0])+'"><div class="grab"></div><h3>'+tp[0]+'</h3><div class="wn">'+tp[1]+'</div>'+
+      '<ol class="steps">'+tp[2].map(function(x){return "<li><span>"+x+"</span></li>";}).join("")+'</ol>'+
+      (tp[3]?'<div class="aside">'+tp[3]+'</div>':'<div style="height:10px"></div>')+
+      '<div class="acts" style="grid-template-columns:1fr"><button class="btn q" id="close">Sluiten</button></div></div></div>';
   }else if(sheet&&sheet.indexOf("@photo:")===0){
     var ph=photos.filter(function(x){return x.k===sheet.slice(7);})[0];
     if(ph)h+='<div class="veil" id="veil"><div class="sheet" role="dialog" aria-label="Foto"><div class="grab"></div><h3>'+short(ph.k.slice(0,10))+' '+ph.k.slice(0,4)+'</h3>'+
@@ -594,7 +658,8 @@ function paintLayer(){
     h+='<div class="veil" id="veil"><div class="sheet" role="dialog" aria-label="'+esc(t.name)+'"><div class="grab"></div>'+
       '<div class="top"><div class="mark" lang="ja" aria-hidden="true">'+t.k+'</div><div><h3>'+t.name+'</h3><div class="when">'+whenText(n)+', '+short(addD(TODAY,n))+'</div></div></div>'+
       '<p>'+t.sub(mOf(TODAY))+'</p>'+
-      '<div class="acts"><button class="btn p" data-a="'+t.id+'">Nu al gedaan</button><button class="btn q" id="close">Sluiten</button></div></div></div>';
+      '<div class="acts"><button class="btn p" data-a="'+t.id+'">Nu al gedaan</button><button class="btn q" data-tip="'+t.id+'">Tip?</button></div>'+
+      '<div class="acts" style="margin-top:8px;grid-template-columns:1fr"><button class="btn q" id="close">Sluiten</button></div></div></div>';
   }
   el("layer").innerHTML=h;
 }
@@ -652,6 +717,7 @@ function render(){
       var t=x.t;
       return '<div class="card" data-card="'+t.id+'"><div class="mark" lang="ja" aria-hidden="true">'+t.k+'</div>'+
         '<div><h3>'+t.name+'</h3><div class="when">'+whenText(x.n)+'</div></div>'+
+        '<button class="tipb" data-tip="'+t.id+'" aria-label="Tip bij '+t.name.toLowerCase()+'">Tip?</button>'+
         '<p>'+t.sub(m)+'</p>'+
         '<div class="acts"><button class="btn p" data-a="'+t.id+'">'+(t.doneLabel||"Gedaan")+'</button>'+
         '<button class="btn q" data-a="'+t.id+'" data-s="1">'+(t.alt||"Sla over")+'</button></div></div>';
@@ -660,7 +726,7 @@ function render(){
       return '<button class="chip" data-open="'+x.t.id+'"><span class="jp" lang="ja" aria-hidden="true">'+x.t.k+'</span><strong>'+x.t.name+'</strong><span>'+whenText(x.n)+'</span></button>';
     }).join("");
     var note="<b>"+MND[m].charAt(0).toUpperCase()+MND[m].slice(1)+".</b> "+NOTES[m];
-    if((m===3||m===4)&&d.getFullYear()>=2027&&(d.getFullYear()-2027)%2===0)note+=" Dit jaar is het verpotjaar.";
+    if((m===3||m===4)&&d.getFullYear()>=2027&&(d.getFullYear()-2027)%2===0)note+=" Dit jaar is het verpotjaar. Hoe het moet, staat bij Hulp.";
     el("month").innerHTML=note;
   }
 
@@ -682,6 +748,7 @@ function render(){
   }
 
   if(view.tab==="hulp"){
+    el("hows").innerHTML=HOWS.map(function(x){return '<button class="how" data-tip="'+x[0]+'"><span class="jp" lang="ja" aria-hidden="true">'+x[1]+'</span>'+x[2]+'</button>';}).join("");
     el("help").innerHTML=HELP.map(function(q,i){
       return '<button class="hq'+(q[3]?" fine-ok":"")+'" data-h="'+i+'" aria-expanded="'+(i===openHelp)+'"><span class="h"><span>'+q[0]+'</span><i aria-hidden="true">+</i></span>'+
         '<span class="a"><b>'+(q[3]?"Niets aan de hand":"Wat het is")+'</b><span>'+q[1]+'</span><b>Wat jullie doen</b><span>'+q[2]+'</span></span></button>';
@@ -739,6 +806,7 @@ document.addEventListener("click",function(ev){
       setTimeout(function(){busy=false;act(id,skip);render();},620);
     }else{act(id,skip);render();}
   }
+  else if(b.dataset.tip){sheet="@tip:"+b.dataset.tip;paintLayer();}
   else if(b.dataset.h){var hi=+b.dataset.h;openHelp=openHelp===hi?-1:hi;render();}
   else if(b.id==="tonaming"){intro=true;render();el("welcome").scrollTop=0;}
   else if(b.dataset.open){sheet=b.dataset.open;paintLayer();}
