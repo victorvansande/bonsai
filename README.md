@@ -12,6 +12,8 @@ Daarom zit er in het Logboek een reservecode. Die code bevat de naam en de hele 
 
 Op iPhone heeft de app op het beginscherm een eigen geheugen, los van Safari. Dus eerst op het beginscherm zetten, dan pas de naam kiezen.
 
+Het fotodagboek (één foto per maand) staat ook alleen op de telefoon, verkleind tot ongeveer 200 kB per foto. De foto's zitten niet in de reservecode. In het Logboek staat een knop om ze allemaal te exporteren.
+
 Testen zonder de echte gegevens te raken: open de app met `?test` achter het adres.
 
 ## Online zetten

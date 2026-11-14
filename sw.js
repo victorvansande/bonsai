@@ -1,5 +1,5 @@
 /* Laat de app ook zonder verbinding openen. Netwerk eerst, anders de laatste kopie. */
-var CACHE="bonsai-v2";
+var CACHE="bonsai-v5";
 self.addEventListener("install",function(e){
   e.waitUntil(caches.open(CACHE).then(function(c){return c.addAll(["./","index.html","manifest.webmanifest","icon-192.png","icon-180.png"]);}).then(function(){return self.skipWaiting();}));
 });
