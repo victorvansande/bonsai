@@ -2,14 +2,17 @@
 <html lang="nl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#ECEBE5">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#ECEBE5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12151B" media="(prefers-color-scheme: dark)">
+<meta name="format-detection" content="telephone=no">
 <title>Bonsai-almanak</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
-<link rel="icon" href="icon-192.png">
+<link rel="icon" type="image/png" href="favicon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Bonsai">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -34,17 +37,21 @@
   --paper:#12151B; --tile:#1C2029; --sunk:#0C0E13; --ink:#E8E5DC; --ink-2:#9A9FAB;
   --indigo:#A3B6E2; --rule:#2F3441; --seal:#EE6B4D; --leaf:#8FB07A; --pot:#5E7163; --bark:#9A8170; color-scheme:dark;
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea{-webkit-user-select:text;user-select:text}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+body{position:fixed;inset:0}
+svg,img{-webkit-user-drag:none;pointer-events:none}
 html{-webkit-text-size-adjust:100%}
-body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;overscroll-behavior-y:none}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;cursor:default}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;touch-action:manipulation}
 button:focus-visible,input:focus-visible{outline:2px solid var(--indigo);outline-offset:2px}
 [hidden]{display:none!important}
 .jp{font-family:var(--display)}
 
 .shell{max-width:480px;height:100%;margin:0 auto;display:flex;flex-direction:column}
-.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top) + 14px) 18px 28px;display:flex;flex-direction:column;gap:22px}
+.scroll::-webkit-scrollbar{display:none}
+.scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top) + 14px) 18px 28px;display:flex;flex-direction:column;gap:22px}
 
 /* tab bar */
 .tabs{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule);background:var(--paper);padding:6px 10px calc(env(safe-area-inset-bottom) + 6px)}
@@ -89,9 +96,10 @@ h2{font-size:13px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
 .rest b{font-family:var(--display);font-size:20px;display:block;margin-bottom:4px}
 
 /* upcoming strip */
-.strip{display:flex;gap:10px;overflow-x:auto;margin:0 -18px;padding:2px 18px 6px;scroll-snap-type:x proximity;scrollbar-width:none}
+.strip{display:flex;gap:10px;overflow-x:auto;overscroll-behavior-x:contain;margin:0 -18px;padding:2px 0 6px;scrollbar-width:none}
+.strip::before,.strip::after{content:"";flex:0 0 8px}
 .strip::-webkit-scrollbar{display:none}
-.chip{flex:none;width:118px;background:var(--tile);border-radius:18px;padding:12px 12px 13px;text-align:left;scroll-snap-align:start;display:flex;flex-direction:column;gap:6px}
+.chip{flex:none;width:118px;background:var(--tile);border-radius:18px;padding:12px 12px 13px;text-align:left;display:flex;flex-direction:column;gap:6px}
 .chip .jp{font-size:26px;font-weight:900;color:var(--indigo);line-height:1}
 .chip strong{font-size:14.5px;line-height:1.2}
 .chip span{font-size:12.5px;color:var(--ink-2)}
@@ -171,7 +179,7 @@ h2{font-size:13px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
 .backup b{font-size:16px}
 .backup .acts{margin-top:2px;grid-template-columns:1fr 1fr}
 .backup .ok{color:var(--leaf);font-weight:700}
-.sheet textarea{width:100%;min-height:110px;border-radius:14px;border:2px solid var(--ink);background:var(--tile);color:var(--ink);padding:12px;font:13px/1.4 ui-monospace,Menlo,monospace;word-break:break-all;resize:none}
+.sheet textarea{width:100%;min-height:110px;border-radius:14px;border:2px solid var(--ink);background:var(--tile);color:var(--ink);padding:12px;font:16px/1.35 ui-monospace,Menlo,monospace;word-break:break-all;resize:none}
 .badge{position:fixed;top:calc(env(safe-area-inset-top) + 6px);left:50%;transform:translateX(-50%);background:var(--seal);color:#FFF6EE;font-size:11px;font-weight:700;letter-spacing:.1em;padding:3px 10px;border-radius:9px;z-index:30}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -190,6 +198,7 @@ h2{font-size:13px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
       <p style="margin-top:12px">Dit boompje is van jullie. Deze app zegt wanneer het iets nodig heeft, zodat jullie er zelf niet aan moeten denken.</p>
       <p style="margin-top:10px">Eén ding eerst: het heeft nog geen naam.</p>
       <p class="warn" id="nostore" style="margin-top:12px" hidden>Deze browser onthoudt niets. Waarschijnlijk een privévenster. Open de app in een gewoon venster, anders is de naam morgen weg.</p>
+      <div class="tip" id="inapp" style="margin-top:12px" hidden><b>Dit is de browser van een chat-app.</b>Die vergeet sneller en kan niets op het beginscherm zetten. Tik op ··· en kies "Openen in Safari" of "Openen in Chrome". Kies de naam daar.</div>
       <div class="tip" id="iostip" style="margin-top:12px" hidden><b>Eerst op het beginscherm zetten.</b>Tik op Deel en dan op "Zet op beginscherm". Open de app vanaf daar en kies dan pas de naam. De app op het beginscherm heeft een eigen geheugen, los van Safari.</div>
       <form id="nameform" autocomplete="off">
         <label for="nm">Hoe gaat hij heten?</label>
@@ -197,6 +206,7 @@ h2{font-size:13px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
         <button class="btn p" type="submit">Dat wordt het</button>
         <p class="hint" id="nmhint">Denk even na. Wijzigen kan achteraf niet meer.</p>
       </form>
+      <button class="btn q" id="install" style="margin-top:10px;width:100%" hidden>Zet op het beginscherm</button>
       <button class="link" id="havecode">We hebben al een reservecode</button>
     </div>
     <div class="sure" id="confirm" hidden>
@@ -229,6 +239,7 @@ h2{font-size:13px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
       </svg>
     </div>
     <p class="warn" id="nostore2" hidden>Deze browser onthoudt niets. Open de app in een gewoon venster, niet in een privévenster.</p>
+    <div class="tip" id="inapp2" hidden><b>Dit is de browser van een chat-app.</b>Wat hier staat, blijft hier. Tik op ··· en kies "Openen in Safari" of "Openen in Chrome", en neem de stand mee met de reservecode uit het Logboek.</div>
     <div class="wen" id="wen" hidden></div>
     <div class="stack"><h2>Nu <span id="cnt"></span></h2><div class="stack" id="due"></div></div>
     <div class="stack"><h2>Straks</h2><div class="strip" id="soon"></div></div>
@@ -253,6 +264,7 @@ h2{font-size:13px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
       <div class="acts"><button class="btn p" id="copy">Kopieer code</button><button class="btn q" id="enter">Code invoeren</button></div>
       <span id="bk"></span>
     </div>
+    <button class="btn q" id="install2" hidden>Zet op het beginscherm</button>
     <p class="fine" id="foot"></p>
   </div>
 
@@ -328,6 +340,9 @@ var view={tab:"vandaag",y:parse(TODAY).getFullYear(),m:parse(TODAY).getMonth(),s
 var pending=null,sheet=null,toast=null,toastTimer=0,busy=false;
 var ref=null,unsub=null,store="wacht",writing=Promise.resolve(),localOnly=false;
 var TEST=/[?&]test\b/.test(location.search);
+var APP=navigator.standalone===true||(window.matchMedia&&window.matchMedia("(display-mode: standalone)").matches);
+var installEvt=null;
+var INAPP=/FBAN|FBAV|FB_IAB|FBIOS|Instagram|Messenger|MicroMessenger|Line\/|Snapchat|TikTok|LinkedInApp/i.test(navigator.userAgent||"");
 var KEY=TEST?"bonsai-almanak-test":"bonsai-almanak";
 var canStore=true,pinned=null,copied="";
 try{localStorage.setItem(KEY+"-t","1");canStore=localStorage.getItem(KEY+"-t")==="1";localStorage.removeItem(KEY+"-t");}catch(e){canStore=false;}
@@ -462,7 +477,10 @@ function render(){
   var forget=!canStore&&store!=="gedeeld";
   el("testbadge").hidden=!TEST;
   el("nostore").hidden=el("nostore2").hidden=!forget;
-  el("iostip").hidden=!(navigator.standalone===false&&store!=="gedeeld");
+  var web=store!=="gedeeld";
+  el("inapp").hidden=el("inapp2").hidden=!(INAPP&&web);
+  el("iostip").hidden=!(navigator.standalone===false&&web&&!INAPP);
+  el("install").hidden=el("install2").hidden=!installEvt||APP;
   if(!named){
     el("ask").hidden=!!pending;el("confirm").hidden=!pending;
     if(pending){el("nmecho").textContent=pending+".";el("yes").textContent="Ja, "+pending;}
@@ -568,6 +586,9 @@ document.addEventListener("click",function(ev){
   else if(b.dataset.open){sheet=b.dataset.open;paintLayer();}
   else if(b.dataset.d){view.sel=b.dataset.d;render();}
   else if(b.id==="close"){sheet=null;paintLayer();}
+  else if(b.id==="install"||b.id==="install2"){
+    if(installEvt){try{installEvt.prompt();}catch(e){}installEvt=null;render();}
+  }
   else if(b.id==="havecode"||b.id==="enter"){sheet="@restore";paintLayer();}
   else if(b.id==="dorestore"){
     var inc=fromCode(el("codein").value),er=el("codeerr");
@@ -596,6 +617,13 @@ el("nameform").addEventListener("submit",function(ev){
   if(!v){h.textContent="Eerst een naam typen.";h.className="hint err";el("nm").focus();return;}
   pending=v;render();
 });
+/* Gedraag je als een app: geen zoom, geen selectiemenu. */
+["gesturestart","gesturechange","gestureend","dblclick"].forEach(function(n){document.addEventListener(n,function(e){e.preventDefault();},{passive:false});});
+document.addEventListener("touchmove",function(e){if(e.touches&&e.touches.length>1)e.preventDefault();},{passive:false});
+document.addEventListener("contextmenu",function(e){if(!e.target.closest("input,textarea"))e.preventDefault();});
+document.addEventListener("wheel",function(e){if(e.ctrlKey)e.preventDefault();},{passive:false});
+window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();installEvt=e;render();});
+window.addEventListener("appinstalled",function(){installEvt=null;render();});
 window.addEventListener("hashchange",function(){var t=location.hash.slice(1);if(TABS.indexOf(t)>=0&&t!==view.tab)go(t);});
 
 try{var loc=localStorage.getItem(KEY);if(loc)state=clean(JSON.parse(loc));}catch(e){}
@@ -621,6 +649,9 @@ Promise.resolve(use).then(function(db){
   },function(){clearTimeout(slow);store="lokaal";ref=null;render();});
 }).catch(function(){clearTimeout(slow);store="lokaal";render();});
 })();
+</script>
+<script>
+if("serviceWorker" in navigator&&location.protocol==="https:"){navigator.serviceWorker.register("sw.js").catch(function(){});}
 </script>
 </body>
 </html>
